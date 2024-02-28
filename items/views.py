@@ -1,9 +1,11 @@
 import stripe
 import os
+from django.core.exceptions import ObjectDoesNotExist
 from dotenv import load_dotenv
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from .models import Item
+from stripe_api.models import Order
 from django_stripe_app.settings import DOMAIN
 
 
@@ -20,9 +22,25 @@ def get_all_items(request):
 
 def get_item(request):
     item = Item.objects.get(pk=int(request.GET.get('id')))
+    try:
+        order = Order.objects.get(item_id=item, user_session=request.session.session_key)
+        quantity = order.quantity
+    except ObjectDoesNotExist:
+        quantity = 0
     buy_url = reverse('buy_item')
-    context = {'item': item, 'buy_url': buy_url}
+    add_item = reverse('add_item')
+    remove_item = reverse('remove_item')
+    context = {'item': item, 
+               'buy_url': buy_url,
+               'add_item': add_item,
+               'remove_item': remove_item,
+               'quantity': quantity}
     return render(request, 'items/item.html', context)
+
+
+
+    
+
 
 # def byu_all(request):
 #     line_items = []
