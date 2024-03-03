@@ -11,6 +11,7 @@ stripe.api_key = os.getenv("API_KEY")
 
 
 def buy_items(request):
+    """Покупка товаров, взаимодействие со Stripe API"""
     line_items = []
     items = (Cart.objects.select_related('item_id')
              .select_related('order_id')
@@ -30,12 +31,14 @@ def buy_items(request):
             return e
         return redirect(checkout_session.url, code=303)
 
+
 def success(request):
+    """Рендеринг страницы успешного платежа"""
     order = Order.objects.get(user_session=request.session.session_key)
     order.delete()
     return render(request, 'items/success.html')
 
 
 def cancel(request):
+    """Рендеринг страницы отмены платежа"""
     return render(request, 'items/cancel.html')
-

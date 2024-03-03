@@ -1,8 +1,12 @@
 from django.db import models
 from items.models import Item
 
+
 class Order(models.Model):
-    user_session = models.CharField(default=None, max_length=100, verbose_name='Номер сессии')
+    """Модель заказа с уникальным номером и уникальным пользователем"""
+    user_session = models.CharField(default=None,
+                                    max_length=100,
+                                    verbose_name='Номер сессии')
     number = models.IntegerField(default=0, verbose_name='Номер заказа')
 
     class Meta:
@@ -10,10 +14,14 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
     def __str__(self) -> str:
-        return f'Заказ № {self.number}' 
+        return f'Заказ № {self.number}'
+
 
 class Cart(models.Model):
-    item_id = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name='Товар')
+    """Модель корзины для каждого товара"""
+    item_id = models.ForeignKey(Item,
+                                on_delete=models.CASCADE,
+                                verbose_name='Товар')
     quantity = models.IntegerField(default=0, verbose_name='Количество товара')
     order_id = models.ForeignKey(Order, on_delete=models.CASCADE,
                                  verbose_name='Номер заказа',
@@ -26,4 +34,3 @@ class Cart(models.Model):
 
     def __str__(self) -> str:
         return f'{self.order_id} - {self.item_id}'
-    
