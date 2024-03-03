@@ -1,10 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
 <p>{{ item.name }}</p>
 <p>{{ item.description }}</p>
 <p>{{ item.price }}</p>
-<p>Количество товара в корзине: {{ quantity }}</p>
+<p>Количество товара в корзине: {{ order.quantity }}</p>
 <p><a href="{{ add_item }}?id={{ item.pk }}">Добавить</a></p>
-<p><a href="{{ remove_item }}?id={{ item.pk }}">Удалить</a></p>
+{% if order.quantity %}
+    <p><a href="{{ remove_item }}?id={{ item.pk }}">Удалить</a></p>
+{% endif %}
 <form action="{{ buy_url }}?id={{ item.pk }}" method="POST">
     {% csrf_token %} 
     <button type="submit" name="buy">Купить</button>
 </form>
+<a href="{% url 'home' %}">Назад</a>
+</body>
+</html>

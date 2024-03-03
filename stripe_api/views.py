@@ -1,38 +1,38 @@
-from django.shortcuts import render, redirect
-from django.core.exceptions import ObjectDoesNotExist
-from items.models import Item
-from .models import Order
 import stripe
 import os
 from dotenv import load_dotenv
-
+from django.shortcuts import redirect, render
+from django_stripe_app.settings import DOMAIN
+from orders.models import Cart
 
 load_dotenv()
 stripe.api_key = os.getenv("API_KEY")
 
 
-def add_to_cart(request):
-    item_id = Item.objects.get(pk=int(request.GET.get('id')))
-    try:
-        order = Order.objects.get(item_id=item_id, user_session=request.session.session_key)
-        order.quantity += 1
-        order.save()
-    except ObjectDoesNotExist:
-        order = Order()
-        order.user_session = request.session.session_key
-        order.item_id = item_id
-        order.quantity = 1
-        order.save()
-    return redirect('get_item')
+def buy_items(request):
+    line_items = []
+    items = (Cart.objects.select_related('item_id')
+             .select_related('order_id')
+             .filter(order_id__user_session=request.session.session_key))
+    if request.method == "POST":
+        for item in items:
+            line_items.append({'price': item.item_id.price_id,
+                               'quantity': item.quantity})
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                line_items=line_items,
+                mode='payment',
+                success_url=DOMAIN + 'success',
+                cancel_url=DOMAIN + 'cancel',
+            )
+        except Exception as e:
+            return e
+        return redirect(checkout_session.url, code=303)
+
+def success(request):
+    return render(request, 'items/success.html')
 
 
-def remove_from_cart(request):
-    item_id = Item.objects.get(pk=int(request.GET.get('id')))
-    order = Order.objects.get(item_id=item_id, user_session=request.session.session_key)
-    order.quantity -= 1
-    if order.quantity == 0:
-        order.delete()
-    else:
-        order.save()
-    return redirect('get_item')
+def cancel(request):
+    return render(request, 'items/cancel.html')
 
