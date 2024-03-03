@@ -10,5 +10,22 @@
     <p>{{ item.description }}</p>
     <p>{{ item.price }} рублей</p>
 {% endfor %}
+
+{% if number_of_items %}
+  <p><h2>Корзина</h2></p>
+  <p>Товаров в корзине: {{ number_of_items }}</p>
+  <p>Сумма заказа: {{ total_sum }} рублей</p>
+{% else %}
+  <p><h2>Корзина</h2></p>
+  <p>Товаров в корзине: 0</p>
+{% endif %}
+<p></p>
+<p></p>
+
+<form action="{% url 'buy' %}" method="POST">
+  {% csrf_token %} 
+  <button type="submit">Перейти к оплате</button>
+</form>
+
 </body>
 </html>

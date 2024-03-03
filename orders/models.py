@@ -10,7 +10,7 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
     def __str__(self) -> str:
-        return f'Заказ № {self.pk}' 
+        return f'Заказ № {self.number}' 
 
 class Cart(models.Model):
     item_id = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name='Товар')
@@ -18,11 +18,12 @@ class Cart(models.Model):
     order_id = models.ForeignKey(Order, on_delete=models.CASCADE,
                                  verbose_name='Номер заказа',
                                  default=None)
+    total = models.FloatField(verbose_name='Сумма заказа', default=0.0)
 
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
 
     def __str__(self) -> str:
-        return f'Заказ № {self.order_id} - {self.item_id}'
+        return f'{self.order_id} - {self.item_id}'
     

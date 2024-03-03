@@ -1,5 +1,6 @@
 import stripe
 import os
+from orders.models import Order
 from dotenv import load_dotenv
 from django.shortcuts import redirect, render
 from django_stripe_app.settings import DOMAIN
@@ -30,6 +31,8 @@ def buy_items(request):
         return redirect(checkout_session.url, code=303)
 
 def success(request):
+    order = Order.objects.get(user_session=request.session.session_key)
+    order.delete()
     return render(request, 'items/success.html')
 
 
