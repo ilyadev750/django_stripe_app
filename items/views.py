@@ -17,11 +17,13 @@ def get_all_items(request):
                      .select_related('order_id')
                      .filter(order_id__user_session=request.session.session_key)
                      .aggregate(Sum('total')))
+        total_sum = total_sum['total__sum']
     except ObjectDoesNotExist:
         number_of_items = None
+        total_sum = None
     context = {'items': items,
                'number_of_items': number_of_items['quantity__sum'],
-               'total_sum': total_sum['total__sum']}
+               'total_sum': total_sum }
     return render(request, 'items/get_all_items.html', context)
 
 
